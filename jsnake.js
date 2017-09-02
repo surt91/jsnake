@@ -33,6 +33,7 @@ let main = window.setInterval(function () {
 
 console.log("Welcome to jsnake!");
 console.log("Steer with WSAD and have some fun!");
+console.log("Enjoy its weird world with helical boudaries!");
 
 // listen for keypresses
 document.onkeydown = function(e) {
@@ -96,18 +97,29 @@ function move() {
     snake.step++;
     let idx = snake.step % snake.len;
 
+    // use helical boundary conditions
+    // in this case it is more complex than periodic, but I don't want
+    // something different
     switch(snake.direction) {
         case "up":
-            snake.tail[idx] = [x, (y-1 + SIZE) % SIZE];
+            if(y == 0)
+                x++;
+            snake.tail[idx] = [x % SIZE, (y-1 + SIZE) % SIZE];
             break;
         case "down":
-            snake.tail[idx] = [x, (y+1 + SIZE) % SIZE];
+            if(y == SIZE - 1)
+                x--;
+            snake.tail[idx] = [(x + SIZE) % SIZE, (y+1) % SIZE];
             break;
         case "left":
-            snake.tail[idx] = [(x-1 + SIZE) % SIZE, y];
+            if(x == 0)
+                y++;
+            snake.tail[idx] = [(x-1 + SIZE) % SIZE, y % SIZE];
             break;
         case "right":
-            snake.tail[idx] = [(x+1 + SIZE) % SIZE, y];
+            if(x == SIZE - 1)
+                y--;
+            snake.tail[idx] = [(x+1) % SIZE, (y + SIZE) % SIZE];
             break;
     }
 
