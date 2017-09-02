@@ -6,6 +6,7 @@ const SCALE = 20;
 const COLOR = "#669900";
 const FOOD = "#cc6600";
 const BG_COLOR = "#000";
+let SPEED = 200;  // speed: 200 -> 5 steps per second
 
 // initialization
 var c = document.getElementById("jsnake");
@@ -26,14 +27,12 @@ var snake = {
 snake.food = randomPosition();
 
 // main 'loop'
-let main = window.setInterval(function () {
-    move();
-    draw();
-}, 200);  // speed: 200 -> 5 steps per second
+let main = loop(SPEED);
 
 console.log("Welcome to jsnake!");
 console.log("Steer with WSAD and have some fun!");
 console.log("Enjoy its weird world with helical boudaries!");
+console.log("Speed up with e and down with q.");
 
 // listen for keypresses
 document.onkeydown = function(e) {
@@ -58,7 +57,24 @@ document.onkeydown = function(e) {
             if(snake.last_direction != "left")
                 snake.direction = "right";
             break;
+        case 69:
+            window.clearInterval(main);
+            SPEED *= 0.8;
+            main = loop(SPEED);
+            break;
+        case 81:
+            window.clearInterval(main);
+            SPEED *= 1/0.8;
+            main = loop(SPEED);
+            break;
     }
+}
+
+function loop(speed) {
+    return window.setInterval(function () {
+        move();
+        draw();
+    }, speed);
 }
 
 function samePosition(p1, p2) {
