@@ -9,13 +9,13 @@ const BG_COLOR = "#000";
 let SPEED = 200;  // speed: 200 -> 5 steps per second
 
 // initialization
-var c = document.getElementById("jsnake");
+let c = document.getElementById("jsnake");
 c.width = (SIZE * SCALE);
 c.height = (SIZE * SCALE);
 
-var ctx = c.getContext("2d");
+let ctx = c.getContext("2d");
 
-var snake = {
+let snake = {
     "direction": "right",
     "last_direction": "right",
     "tail": [[5, 5], [4, 5]],  // ring buffer of the positions of the snake
@@ -24,6 +24,7 @@ var snake = {
     "food": [],
     "gameOver": false
 }
+const COORDINATES = [].concat(...[...Array(SIZE).keys()].map(x => [...Array(SIZE).keys()].map(y => [x, y])));
 snake.food = randomPosition();
 
 // main 'loop'
@@ -100,10 +101,23 @@ function randomPosition() {
         return false;
     }
 
-    do {
-        x = Math.floor(Math.random() * SIZE);
-        y = Math.floor(Math.random() * SIZE);
-    } while(isSnake([x, y]));
+    if(snake.len >= SIZE * SIZE) {
+        // if the snake has max length, place the food outside
+        x, y = -1, -1;
+        snake.gameOver = true;
+    } else if(snake.len > SIZE * SIZE - 30) {
+        // if only a few places are left, get random points from the free positions
+        let s = new Set([...snake.tail].map(p => p.toString()));
+        let free = [...COORDINATES].filter(p => !s.has(p.toString()));
+        p = free[Math.floor(Math.random() * free.length)];
+        [x, y] = p;
+    } else {
+        // else try points at random
+        do {
+            x = Math.floor(Math.random() * SIZE);
+            y = Math.floor(Math.random() * SIZE);
+        } while(isSnake([x, y]));
+    }
 
     return [x, y];
 }
