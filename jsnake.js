@@ -35,28 +35,41 @@ console.log("Steer with WSAD and have some fun!");
 console.log("Enjoy its weird world with helical boudaries!");
 console.log("Speed up with e and down with q.");
 
+function turnUp() {
+    if(snake.last_direction != "down")
+        snake.direction = "up";
+}
+function turnDown() {
+    if(snake.last_direction != "up")
+        snake.direction = "down";
+}
+function turnLeft() {
+    if(snake.last_direction != "right")
+        snake.direction = "left";
+}
+function turnRight() {
+    if(snake.last_direction != "left")
+        snake.direction = "right";
+}
+
 // listen for keypresses
 document.onkeydown = function(e) {
     switch(e.keyCode) {
         case 38:
         case 87:
-            if(snake.last_direction != "down")
-                snake.direction = "up";
+            turnUp();
             break;
         case 40:
         case 83:
-            if(snake.last_direction != "up")
-                snake.direction = "down";
+            turnDown();
             break;
         case 37:
         case 65:
-            if(snake.last_direction != "right")
-                snake.direction = "left";
+            turnLeft();
             break;
         case 39:
         case 68:
-            if(snake.last_direction != "left")
-                snake.direction = "right";
+            turnRight();
             break;
         case 69:
             window.clearInterval(main);
@@ -70,6 +83,63 @@ document.onkeydown = function(e) {
             break;
     }
 }
+
+// steering using touch gestures
+let xDown = null;
+let yDown = null;
+
+document.ontouchstart = function(evt) {
+    xDown = evt.touches[0].clientX;
+    yDown = evt.touches[0].clientY;
+};
+
+document.ontouchmove = function (evt) {
+    if(! xDown || ! yDown) {
+        return;
+    }
+
+    let xUp = evt.touches[0].clientX;
+    let yUp = evt.touches[0].clientY;
+
+    // only handle the event, if the swipe started or ended in the canvas
+    let r = c.getBoundingClientRect();
+    if(
+               xUp - r.left > 0
+            && yUp - r.top > 0
+            && xUp - r.right < 0
+            && yUp - r.bottom < 0
+        ||     xDown - r.left > 0
+            && yDown - r.top > 0
+            && xDown - r.right < 0
+            && yDown - r.bottom < 0) {
+        // prevent scroll if inside canvas
+        evt.stopPropagation();
+    } else {
+        // do nothing if outside canvas
+        return;
+    }
+
+    let xDiff = xDown - xUp;
+    let yDiff = yDown - yUp;
+
+    // which component is longer
+    if(Math.abs(xDiff) > Math.abs(yDiff)) {
+        if ( xDiff > 0 ) {
+            turnLeft();
+        } else {
+            turnRight();
+        }
+    } else {
+        if(yDiff > 0) {
+            turnUp();
+        } else {
+            turnDown();
+        }
+    }
+
+    xDown = null;
+    yDown = null;
+};
 
 function loop(speed) {
     return window.setInterval(function () {
@@ -101,7 +171,7 @@ function randomPosition() {
         return false;
     }
 
-    if(snake.len >= SIZE * SIZE) {
+    if(snake.len > SIZE * SIZE) {
         // if the snake has max length, place the food outside
         x, y = -1, -1;
         snake.gameOver = true;
