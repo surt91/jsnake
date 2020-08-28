@@ -88,6 +88,9 @@ document.onkeydown = function(e) {
 let xDown = null;
 let yDown = null;
 
+// prevent scrolling so that we can use touch events of navigation
+c.style.cssText = "touch-action: none;";
+
 document.ontouchstart = function(evt) {
     xDown = evt.touches[0].clientX;
     yDown = evt.touches[0].clientY;
@@ -112,10 +115,9 @@ document.ontouchmove = function (evt) {
             && yDown - r.top > 0
             && xDown - r.right < 0
             && yDown - r.bottom < 0) {
-        // prevent scroll if inside canvas
-        evt.stopPropagation();
+        // we are inside, just pass
     } else {
-        // do nothing if outside canvas
+        // do not steer if the event was outside
         return;
     }
 
@@ -198,7 +200,7 @@ function move() {
     let idx = snake.step % snake.len;
 
     // use helical boundary conditions
-    // in this case it is more complex than periodic, but I don't want
+    // in this case it is more complex than periodic, but I want
     // something different
     switch(snake.direction) {
         case "up":
